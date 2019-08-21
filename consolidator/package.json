@@ -1,0 +1,15 @@
+{
+  "name": "ingestor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "build-docker": "docker build -t duizabojul/consolidator ."
+  },
+  "author": "Julien Duizabo",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "express": "^4.17.1"
+  }
+}

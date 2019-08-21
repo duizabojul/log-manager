@@ -1,0 +1,14 @@
+{
+  "name": "ingestor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "build-docker": "docker build -t duizabojul/ingestor ."
+  },
+  "author": "Julien Duizabo",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
