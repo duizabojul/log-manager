@@ -1,6 +1,6 @@
-# Project Title
+# Log-Manager
 
-Log-Manager
+Scalable microservices to handle logs of multiples applications and consolidate them in S3 Storage. Built with `docker` and `node.js`.
 
 ### Prerequisites
 
