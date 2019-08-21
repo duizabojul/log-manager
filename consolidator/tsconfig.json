@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "build",
+    "module": "commonjs",
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2018",
+    "resolveJsonModule": true,
+  },
+  "exclude":[
+    "node_modules",
+    "build"
+  ]
+}

@@ -1,14 +1,11 @@
-'use strict';
-var os = require('os');
-const express = require('express');
+import * as os from 'os';
+import * as express from 'express';
 
-// Constants
 const PORT = 8080;
 const HOST = '0.0.0.0';
 
-// App
 const app = express();
-app.get('/', (req, res) => {
+app.get('/', (req:express.Request, res:express.Response) => {
   const hostname = os.hostname()
   res.json({hostname});
 });
