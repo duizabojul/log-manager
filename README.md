@@ -10,7 +10,7 @@ You have to install `node`, `docker` and `docker-compose` to install and test th
 
 ### Installing and deploying
 
-#####To install and deploy stack follow these steps :
+To install and deploy stack follow these steps :
 
 1. Create docker images of the two microservices :
 
