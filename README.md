@@ -19,7 +19,7 @@ To install and deploy stack follow these steps :
 
 2. Deploy stack
 
-`npm run deploy-stack` or `docker stack deploy --compose-file=docker-compose.yml log-manager`
+`npm run stack:deploy` or `docker stack deploy --compose-file=docker-compose.yml log-manager`
 
 
 ### Testing 
@@ -28,11 +28,12 @@ To install and deploy stack follow these steps :
 
 - Access consolidator via `http://localhost:3333/`.
 
+
 ### Good to know
 
 You can scale ingestor microservice during runtime with following command : `docker service scale log-manager_ingestor=NB_CONTAINERS`
 
-You can update microservices during runtime with following commands : `npm run update-consolidator` and `npm run update-ingestor`
+You can update microservices during runtime with following commands : `npm run update:consolidator` and `npm run update:ingestor`
 
 Because of the following `docker-compose.yml` configuration, the initial stack will deploy 6 containers of ingestor microservice (`replicas` value). 
 If you update the ingestor during runtime, containers will be shutdowned and updated two by two (`parallelism` value), HAProxy will load-balance traffic on old version working containers and progressively redirect trafic on updated containers. In summary, you will not experience downtime of your ingestor microservice. 
