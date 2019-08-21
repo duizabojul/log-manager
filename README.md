@@ -32,5 +32,25 @@ To install and deploy stack follow these steps :
 
 - Access consolidator via `http://localhost:3333/`.
 
+### Good to know
+
+You can scale ingestor microservice during runtime with following command : `docker service scale log-manager_ingestor=NB_CONTAINERS`
+
+You can update microservices during runtime with following commands : `npm run update-consolidator` and `npm run update-ingestor`
+
+Because of the following `docker-compose.yml` configuration, the initial stack will deploy 6 containers of ingestor microservice, and updating the ingestor during runtime will update containers two by two : you will not experience downtime of your ingestor microservice. If you want to change this behavior, update the value of `replicas` and `parallelism`.   
+
+```
+deploy:
+      replicas: 6
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+        window: 120s
+```
+
 
 
