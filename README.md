@@ -38,19 +38,24 @@ You can scale ingestor microservice during runtime with following command : `doc
 
 You can update microservices during runtime with following commands : `npm run update-consolidator` and `npm run update-ingestor`
 
-Because of the following `docker-compose.yml` configuration, the initial stack will deploy 6 containers of ingestor microservice, and updating the ingestor during runtime will update containers two by two : you will not experience downtime of your ingestor microservice. If you want to change this behavior, update the value of `replicas` and `parallelism`.   
+Because of the following `docker-compose.yml` configuration, the initial stack will deploy 6 containers of ingestor microservice (`replicas` value). 
+If you update the ingestor during runtime, containers will be shutdowned and updated two by two (`parallelism` value), HAProxy will load-balance traffic on old version working containers and progressively redirect trafic on updated containers. In summary, you will not experience downtime of your ingestor microservice. 
+
 
 ```
-deploy:
-      replicas: 6
-      update_config:
-        parallelism: 2
-        delay: 10s
-      restart_policy:
-        condition: on-failure
-        max_attempts: 3
-        window: 120s
+ingestor:
+  ...
+  deploy:
+    replicas: 6
+    update_config:
+      parallelism: 2
+      delay: 10s
+    restart_policy:
+      condition: on-failure
+      max_attempts: 3
+      window: 120s
 ```
 
+If you want to change this behavior, update the value of `replicas` and `parallelism`.   
 
 
