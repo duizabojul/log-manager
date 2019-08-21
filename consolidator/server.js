@@ -8,8 +8,7 @@ const HOST = '0.0.0.0';
 const app = express();
 app.get('/', (req, res) => {
   axios.get('http://ingestor:8080/').then(result => {
-    console.log(result)
-    res.send(result.data);
+    res.send(`hostname de l'ingestor atteint : ${result.data.hostname}`);
   }).catch(err => {
     res.send(err.message)
   })

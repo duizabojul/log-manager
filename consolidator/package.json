@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "build-docker": "docker build -t duizabojul/consolidator ."
+    "build-docker": "docker build -t diouze/log-consolidator ."
   },
   "author": "Julien Duizabo",
   "license": "ISC",

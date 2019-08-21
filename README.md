@@ -12,16 +12,12 @@ You have to install `node`, `docker` and `docker-compose` to install and test th
 
 To install and deploy stack follow these steps :
 
-1. Create docker images of the two microservices :
 
-`npm run install` or `cd ingestor && docker build -t duizabojul/ingestor . && cd ../consolidator && docker build -t duizabojul/consolidator . && cd ..`
- 
-
-2. Init a swarm :
+1. Init a swarm :
 
 `docker swarm init` 
 
-3. Deploy stack
+2. Deploy stack
 
 `npm run deploy-stack` or `docker stack deploy --compose-file=docker-compose.yml log-manager`
 

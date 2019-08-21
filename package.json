@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "install": "cd ingestor && docker build -t duizabojul/ingestor . && cd ../consolidator && docker build -t duizabojul/consolidator . && cd ..",
     "deploy-stack": "docker stack deploy --compose-file=docker-compose.yml log-manager",
     "stop-stack": "docker service rm `docker service ls -q`",
     "update-consolidator": "cd consolidator && npm run build-docker && cd .. && docker service update --force log-manager_consolidator",
