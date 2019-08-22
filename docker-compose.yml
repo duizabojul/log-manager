@@ -18,8 +18,12 @@ services:
         window: 120s
     networks:
       - web
+    volumes:
+      - ./data/ingestor:/data
   consolidator:
     image: diouze/log-consolidator
+    depends_on:
+      - ingestor
     ports:
       - 3333:8080
     deploy:
@@ -29,6 +33,8 @@ services:
         window: 120s
     networks:
       - web
+    volumes:
+      - ./data/consolidator:/data
   proxy:
     image: dockercloud/haproxy
     depends_on:

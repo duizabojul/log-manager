@@ -3,10 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "stack:deploy": "docker stack deploy --compose-file=docker-compose.yml log-manager",
-    "stack:stop": "docker service rm `docker service ls -q`",
-    "update:consolidator": "cd consolidator && npm run build-docker && cd .. && docker service update --force log-manager_consolidator",
-    "update:ingestor": "cd ingestor && npm run build-docker && cd .. && docker service update --force log-manager_ingestor"
+    "stack:deploy": "mkdir -p data/{ingestor,consolidator} && docker stack deploy --compose-file docker-compose.yml log-manager",
+    "stack:stop": "docker stack rm log-manager"
   },
   "author": "Julien Duizabo",
   "license": "ISC"
