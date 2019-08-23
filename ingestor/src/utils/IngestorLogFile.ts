@@ -54,7 +54,7 @@ class IngestorLogFile {
     if(this.jsonClosed || this.pauseWrites) return Promise.reject('log file not writable')
     const promiseId = uuid()
     const promise = this.ensureFileExistsAndJsonOpened().then(() => {
-      return fs.outputJsonSync(this.path, {...log, id : promiseId} , {EOL : ',\n', flag : 'a+'})
+      return fs.writeJson(this.path, {...log, id : promiseId} , {EOL : ',\n', flag : 'a+'})
     })
     this.writingPromises.push({promiseId, promise})
     promise.finally(() => {

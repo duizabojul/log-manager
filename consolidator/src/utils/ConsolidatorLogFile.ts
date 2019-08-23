@@ -1,8 +1,11 @@
 import * as fs from 'fs-extra';
 import * as uuid from 'uuid/v4';
 
+const store:any = {}
+
 class ConsolidatorLogFile {
-  id:string
+  logDateString:string
+  vhost:string
   path:string
   fileExists:boolean
   jsonOpened:boolean
@@ -10,23 +13,17 @@ class ConsolidatorLogFile {
   openingJsonPromise:any
   pauseWrites:boolean
   writingPromises:Array<any>
-  constructor (params:any = {id : null}){
-    const isNewFile = !params.id
-    this.id = params.id || uuid()
-    this.path = `/data/logs/${this.id}.json`
+  constructor ({logDateString, vhost} : {logDateString:string, vhost:string} ){
+    this.logDateString = logDateString
+    this.vhost = vhost
+    this.path = `/data/logs/${logDateString}/${logDateString}_${this.vhost}.json`
     this.fileExists = false
     this.jsonOpened = false
     this.jsonClosed = false
-    if(!isNewFile){
-      this.checkFileStructure()
-    }
+    this.checkFileStructure()
     this.openingJsonPromise = null
     this.pauseWrites = false
     this.writingPromises = []
-  }
-
-  getId () {
-    return this.id
   }
 
   checkFileStructure () {
@@ -50,11 +47,17 @@ class ConsolidatorLogFile {
     return this.fileExists && this.jsonOpened && this.jsonClosed
   }
 
-  writeNewLog (log:Object) {
+  writeNewLogs (logs:Array<Object>) {
     if(this.jsonClosed || this.pauseWrites) return Promise.reject('log file not writable')
     const promiseId = uuid()
     const promise = this.ensureFileExistsAndJsonOpened().then(() => {
-      return fs.outputJsonSync(this.path, {...log, id : promiseId} , {EOL : ',\n', flag : 'a+'})
+      if(logs.length === 1){
+        return fs.writeJson(this.path, logs[0] , {EOL : ',\n', flag : 'a+'})
+      }
+      let content:string =  JSON.stringify(logs)
+      content = content.substring(1, content.length - 1).replace(/\},\{/g, '},\n{')
+      content = `${content},\n`
+      return fs.writeFile(this.path, content, {flag : 'a+'})
     })
     this.writingPromises.push({promiseId, promise})
     promise.finally(() => {
@@ -120,8 +123,14 @@ class ConsolidatorLogFile {
     this.fileExists = false
   }
 
-  static factory(params:any = {id : null}) {
-    return new this(params);
+  static getInstance(params: {logDateString:string, vhost:string}) {
+    let instance = store[`${params.logDateString}/${params.vhost}`]
+    if(instance){
+      return instance
+    }
+    instance = new this(params)
+    store[`${params.logDateString}/${params.vhost}`]
+    return instance
   }
 }
 
