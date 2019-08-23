@@ -24,10 +24,14 @@ To install and deploy stack follow these steps :
 
 ### Testing 
 
-- `npm run logs-generator:start` for launching basic process on consolidator to flood ingestors with fake logs. 
-- `npm run logs-generator:stop` for stopping logs generator
-- `npm run consolidator:start` for launching consolidator microservice : each ingestor will be requested every `ÌNTERVAL_IN_SECOND * NB_INGESTORS` seconds and will send back logs added since the last request. 
-- `npm run consolidator:stop` for stopping consolidator
+`npm run logs-generator:start` to flood ingestors with fake logs. 
+
+`npm run logs-generator:stop` to stop fake logs generator.
+
+`npm run consolidator:start` to launch consolidator microservice : each ingestor will be requested every `NB_INGESTORS` seconds and will respond with logs added since the last request. 
+
+`npm run consolidator:stop` to stop consolidator microservice.
+
 
 
 ### Good to know
