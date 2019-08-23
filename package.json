@@ -4,7 +4,11 @@
   "description": "",
   "scripts": {
     "stack:deploy": "mkdir -p data/{ingestor,consolidator} && docker stack deploy --compose-file docker-compose.yml log-manager",
-    "stack:stop": "docker stack rm log-manager"
+    "stack:stop": "docker stack rm log-manager",
+    "logs-generator:start" : "curl http://127.0.0.1:3333/logs-generator/start",
+    "logs-generator:stop" : "curl http://127.0.0.1:3333/logs-generator/stop",
+    "consolidator:start" : "curl http://127.0.0.1:3333/consolidator/start",
+    "consolidator:stop" : "curl http://127.0.0.1:3333/consolidator/stop"
   },
   "author": "Julien Duizabo",
   "license": "ISC"

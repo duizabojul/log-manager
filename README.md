@@ -24,9 +24,10 @@ To install and deploy stack follow these steps :
 
 ### Testing 
 
-- Access ingestor microservice via `http://127.0.0.1:80/`. Requests will be load-balanced via HAProxy with Round-robin strategy.
-
-- Access consolidator via `http://127.0.0.1:3333/`.
+- `npm run logs-generator:start` for launching basic process on consolidator to flood ingestors with fake logs. 
+- `npm run logs-generator:stop` for stopping logs generator
+- `npm run consolidator:start` for launching consolidator microservice : each ingestor will be requested every `ÌNTERVAL_IN_SECOND * NB_INGESTORS` seconds and will send back logs added since the last request. 
+- `npm run consolidator:stop` for stopping consolidator
 
 
 ### Good to know
