@@ -32,6 +32,10 @@ To install and deploy stack follow these steps :
 
 `npm run consolidator:stop` &rarr; Stop consolidator microservice.
 
+`npm run test:start` &rarr; Start consolidator microservice and fake logs generator. 
+
+`npm run test:stop` &rarr; Stop consolidator microservice and fake logs generator.
+
 
 
 ### Good to know
