@@ -1,14 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { LogFile, HttpError } from '../../utils';
 
-let currentLogFile = LogFile.factory()
+let currentLogFile = LogFile.getUnusedFileOrCreate()
 
 const getLogs = (req:Request, res:Response, next:NextFunction) => {
   const logFileToSend = currentLogFile
   if(logFileToSend.isEmpty()) {
     res.json([])
   } else {
-    currentLogFile = LogFile.factory()
+    currentLogFile = LogFile.getUnusedFileOrCreate()
     logFileToSend.getLogsAndRemoveFromFs()
     .then(json => {
       res.json(json)
@@ -33,6 +33,7 @@ const addLog = (req:Request, res:Response, next:NextFunction) => {
   .catch((err:any) => {
     next(new HttpError(err))
   })
+
 };
 
 export default {

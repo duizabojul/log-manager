@@ -19,7 +19,7 @@ To install and deploy stack follow these steps :
 
 2. Deploy stack
 
-`npm run stack:deploy`
+`npm run stack:start`
 
 
 ### Testing 
@@ -35,6 +35,12 @@ To install and deploy stack follow these steps :
 `npm run test:start` &rarr; Start consolidator microservice and fake logs generator. 
 
 `npm run test:stop` &rarr; Stop consolidator microservice and fake logs generator.
+
+`npm run stack:start` &rarr; Deploy stack
+
+`npm run stack:restart` &rarr; Restart all services except log-network
+
+`npm run stack:stop` &rarr; Stop stack
 
 
 

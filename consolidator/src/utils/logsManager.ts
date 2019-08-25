@@ -1,11 +1,10 @@
 import * as fs from 'fs-extra';
 import * as uuid from 'uuid/v4';
+import { minioManager, constants} from '.'
 
 const store:any = {}
 
 class ConsolidatorLogFile {
-  logDateString:string
-  vhost:string
   path:string
   fileExists:boolean
   jsonOpened:boolean
@@ -13,10 +12,9 @@ class ConsolidatorLogFile {
   openingJsonPromise:any
   pauseWrites:boolean
   writingPromises:Array<any>
-  constructor ({logDateString, vhost} : {logDateString:string, vhost:string} ){
-    this.logDateString = logDateString
-    this.vhost = vhost
-    this.path = `/data/logs/${logDateString}/${logDateString}_${this.vhost}.json`
+
+  constructor ({path, logDateString, vhost} : {path:any, logDateString:any, vhost:any} ){
+    this.path = path || `${constants.BASE_PATH}/${logDateString}/${logDateString}_${vhost}.json`
     this.fileExists = false
     this.jsonOpened = false
     this.jsonClosed = false
@@ -24,6 +22,10 @@ class ConsolidatorLogFile {
     this.openingJsonPromise = null
     this.pauseWrites = false
     this.writingPromises = []
+  }
+
+  getPath () {
+    return this.path
   }
 
   checkFileStructure () {
@@ -39,21 +41,10 @@ class ConsolidatorLogFile {
     return this.fileExists ? fs.readFileSync(this.path, {encoding : 'utf8'}) : ''
   }
 
-  isEmpty () {
-    return !this.fileExists || !this.jsonOpened
-  }
-
-  hasValidJson () {
-    return this.fileExists && this.jsonOpened && this.jsonClosed
-  }
-
   writeNewLogs (logs:Array<Object>) {
     if(this.jsonClosed || this.pauseWrites) return Promise.reject('log file not writable')
     const promiseId = uuid()
     const promise = this.ensureFileExistsAndJsonOpened().then(() => {
-      if(logs.length === 1){
-        return fs.writeJson(this.path, logs[0] , {EOL : ',\n', flag : 'a+'})
-      }
       let content:string =  JSON.stringify(logs)
       content = content.substring(1, content.length - 1).replace(/\},\{/g, '},\n{')
       content = `${content},\n`
@@ -77,25 +68,33 @@ class ConsolidatorLogFile {
     return this.openingJsonPromise
   }
 
-  getLogsAndRemoveFromFs () {
+  uploadToMinioAndRemoveFromFs () {
     return new Promise((resolve, reject) => {
       this.pauseWrites = true
       this.waitForAllWrites()
-      .then(() => this.closeJson())
-      .catch((err) => {
-        this.pauseWrites = false
-        reject(err)
+      .then(() => {
+        return this.closeJson()
       })
-      .then(() => this.getJsonFromFile())
-      .then(json => {
-        resolve(json)
+      .catch(() => {
+        this.pauseWrites = false
+      })
+      .then(() => {
+        return this.sortJson()
+      })
+      .then(() => {
+        return this.uploadJsonToMinio()
+      })
+      .catch(reject)
+      .then(() => {
+        resolve()
         this.removeFromFs()
       })
     })
   }
 
+
   waitForAllWrites () {
-    return Promise.all(this.writingPromises.map(promise => promise.catch((e:any) => e)))
+    return Promise.all(this.writingPromises.map(writingPromise => writingPromise.promise.catch((e:any) => e)))
   }
 
   closeJson () {
@@ -105,6 +104,25 @@ class ConsolidatorLogFile {
       this.jsonClosed = true
     })
   }
+
+  sortJson () {
+    return this.getJsonFromFile().then(json => {
+      const map:any = {}
+      const logsArr = json.reduce((acc:Array<any>, curr:any) => {
+        if(curr.id && !map[curr.id]){
+          map[curr.id] = curr
+          acc.push({log : curr, timestamp : new Date(curr.timestamp).getTime()})
+        }
+        return acc
+      }, [])
+      logsArr.sort((a:any, b:any) => {
+        return a.timestamp - b.timestamp
+      })
+      let content:string =  JSON.stringify(logsArr.map((log:any) => log.log)).replace(/\},\{/g, '},\n{')
+      return fs.writeFile(this.path, content)
+    })
+  }
+
 
   getJsonFromFile () {
     if(!this.hasValidJson()){
@@ -116,23 +134,41 @@ class ConsolidatorLogFile {
     })
   }
 
-  removeFromFs () {
-    fs.removeSync(this.path)
-    this.jsonOpened = false
-    this.jsonClosed = false
-    this.fileExists = false
+  hasValidJson () {
+    return this.fileExists && this.jsonOpened && this.jsonClosed
   }
 
-  static getInstance(params: {logDateString:string, vhost:string}) {
-    let instance = store[`${params.logDateString}/${params.vhost}`]
-    if(instance){
-      return instance
-    }
-    instance = new this(params)
-    store[`${params.logDateString}/${params.vhost}`]
+  uploadJsonToMinio () {
+    return minioManager.addLogsFile(this.path)
+  }
+
+  removeFromFs () {
+    fs.remove(this.path).then(() => {
+      this.jsonOpened = false
+      this.jsonClosed = false
+      this.fileExists = false
+    })
+  }
+
+  removeFromStore = () => {
+    store[this.getPath()] = null
+  }
+
+}
+
+export const getLogFileInstance = (params:any):ConsolidatorLogFile => {
+  const filePath = params.path || `${constants.BASE_PATH}/${params.logDateString}/${params.logDateString}_${params.vhost}.json`
+  let instance = store[filePath]
+  if(instance){
     return instance
   }
+  instance = new ConsolidatorLogFile(params)
+  store[filePath] = instance
+  return instance
+}
+
+export default {
+  getLogFileInstance
 }
 
 
-export default ConsolidatorLogFile

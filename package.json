@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "stack:deploy": "mkdir -p data/{ingestor,consolidator} && docker stack deploy --compose-file docker-compose.yml log-manager",
+    "stack:start": "mkdir -p data/{ingestor,consolidator,minio} && docker stack deploy --compose-file docker-compose.yml log-manager",
+    "stack:restart": "docker service rm log-manager_consolidator && docker service rm log-manager_ingestor && docker service rm log-manager_proxy && docker service rm log-manager_minio && npm run stack:start",
     "stack:stop": "docker stack rm log-manager",
     "logs-generator:start" : "curl http://127.0.0.1:3333/logs-generator/start",
     "logs-generator:stop" : "curl http://127.0.0.1:3333/logs-generator/stop",

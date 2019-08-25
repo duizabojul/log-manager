@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
   ingestor:
@@ -17,13 +17,14 @@ services:
         max_attempts: 3
         window: 120s
     networks:
-      - web
+      - log-network
     volumes:
       - ./data/ingestor:/data
   consolidator:
     image: diouze/log-consolidator
     depends_on:
       - ingestor
+      - minio
     ports:
       - 3333:8080
     deploy:
@@ -32,7 +33,7 @@ services:
         max_attempts: 3
         window: 120s
     networks:
-      - web
+      - log-network
     volumes:
       - ./data/consolidator:/data
   proxy:
@@ -46,11 +47,22 @@ services:
     ports:
       - 80:80
     networks:
-      - web
+      - log-network
     deploy:
       placement:
         constraints: [node.role == manager]
-
+  minio:
+    image: minio/minio
+    networks:
+      - log-network
+    ports:
+      - "9001:9000"
+    command: server /data
+    environment:
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    volumes:
+      - ./data/minio:/data
 networks:
-  web:
+  log-network:
     driver: overlay
