@@ -13,7 +13,7 @@ const minioClient = new Minio.Client({
 });
 const BUCKET_NAME = 'logs'
 
-const minioCron = new CronJob('* * * * *', () => {
+const minioCron = new CronJob('* 1-5 * * *', () => {
   consolidateOnMinio()
 });
 
