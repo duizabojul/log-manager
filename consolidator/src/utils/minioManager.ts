@@ -1,8 +1,8 @@
 import * as Minio from 'minio'
-import { CronJob } from 'cron'
-import { constants, logsManager } from '.'
 import * as moment from 'moment'
 import * as fs from 'fs-extra';
+import { CronJob } from 'cron'
+import { constants, logsManager } from '.'
 
 const minioClient = new Minio.Client({
   endPoint: 'minio',
@@ -26,6 +26,7 @@ const stopCron = () => {
 }
 
 const consolidateOnMinio = () => {
+  const promises:Array<Promise<any>> = []
   const today = moment()
   const directories = fs.readdirSync(constants.BASE_PATH, { withFileTypes: true })
   .filter(dirent => dirent.isDirectory())
@@ -33,11 +34,12 @@ const consolidateOnMinio = () => {
   directories.forEach(directoryName => {
     const date = moment(directoryName, 'DD-MM-YY')
     if(date.isValid() && date.isBefore(today, 'day')){
-      sendDirectoryContentToMinio(directoryName).then(() => {
+      promises.push(sendDirectoryContentToMinio(directoryName).then(() => {
         fs.remove(`${constants.BASE_PATH}/${directoryName}`)
-      })
+      }))
     }
   })
+  return Promise.all(promises)
 }
 
 const sendDirectoryContentToMinio = (directoryName:string) => {
@@ -83,7 +85,8 @@ export default {
   initBucket,
   addLogsFile,
   startCron,
-  stopCron
+  stopCron,
+  consolidateOnMinio
 }
 
 

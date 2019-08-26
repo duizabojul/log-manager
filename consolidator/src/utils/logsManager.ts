@@ -24,20 +24,14 @@ class ConsolidatorLogFile {
     this.writingPromises = []
   }
 
-  getPath () {
-    return this.path
-  }
-
   checkFileStructure () {
     this.fileExists = fs.existsSync(this.path)
-    if(this.fileExists){
-      const content = this.getContentAsString()
-      this.jsonOpened = content.length > 0 && content.charAt(0) === '['
-      this.jsonClosed = content.length > 0 && content.charAt(content.length -1) === ']'
-    }
+    const content = this.getFileContentAsString()
+    this.jsonOpened = content.length > 0 && content.charAt(0) === '['
+    this.jsonClosed = content.length > 0 && content.charAt(content.length -1) === ']'
   }
 
-  getContentAsString () {
+  getFileContentAsString () {
     return this.fileExists ? fs.readFileSync(this.path, {encoding : 'utf8'}) : ''
   }
 
@@ -151,18 +145,14 @@ class ConsolidatorLogFile {
   }
 
   removeFromStore = () => {
-    store[this.getPath()] = null
+    store[this.path] = null
   }
 
 }
 
 export const getLogFileInstance = (params:any):ConsolidatorLogFile => {
   const filePath = params.path || `${constants.BASE_PATH}/${params.logDateString}/${params.logDateString}_${params.vhost}.json`
-  let instance = store[filePath]
-  if(instance){
-    return instance
-  }
-  instance = new ConsolidatorLogFile(params)
+  let instance = store[filePath] || new ConsolidatorLogFile(params)
   store[filePath] = instance
   return instance
 }
