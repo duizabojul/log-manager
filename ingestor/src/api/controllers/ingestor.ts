@@ -8,7 +8,7 @@ const getLogs = (req:Request, res:Response, next:NextFunction) => {
   if(logFileToSend.isEmpty()) {
     res.json([])
   } else {
-    currentLogFile = LogFile.getUnusedFileOrCreate()
+    currentLogFile = LogFile.getUnusedFileOrCreate(logFileToSend)
     logFileToSend.getLogsAndRemoveFromFs()
     .then(json => {
       res.json(json)

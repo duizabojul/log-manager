@@ -1,6 +1,6 @@
 # Log-Manager
 
-Scalable microservices to handle logs of multiples applications and consolidate them in S3 Storage. Built with `docker` and `node.js`.
+Scalable microservices to handle logs of multiples applications and consolidate them in S3 Storage. Built with `docker`, `node.js` and `minio`.
 
 ### Prerequisites
 
@@ -24,6 +24,12 @@ To install and deploy stack follow these steps :
 
 ### Testing 
 
+`npm run stack:start` &rarr; Deploy stack
+
+`npm run stack:restart` &rarr; Restart all services except log-network
+
+`npm run stack:stop` &rarr; Stop stack
+
 `npm run logs-generator:start`  &rarr;  Flood ingestors with fake logs
 
 `npm run logs-generator:stop` &rarr; Stop fake logs generator.
@@ -32,21 +38,16 @@ To install and deploy stack follow these steps :
 
 `npm run consolidator:stop` &rarr; Stop consolidator microservice.
 
+`npm run consolidator:minioTask` &rarr; Launch minio task : verify if logs stored in consolidator file system are old enough to be send on minio and upload them after sorting and formatting.
+
 `npm run test:start` &rarr; Start consolidator microservice and fake logs generator. 
 
 `npm run test:stop` &rarr; Stop consolidator microservice and fake logs generator.
 
-`npm run stack:start` &rarr; Deploy stack
-
-`npm run stack:restart` &rarr; Restart all services except log-network
-
-`npm run stack:stop` &rarr; Stop stack
-
-
 
 ### Good to know
 
-You can scale ingestor microservice during runtime with following command : `docker service scale log-manager_ingestor=NB_CONTAINERS`
+You can scale up and down ingestor microservice during runtime with following command : `docker service scale log-manager_ingestor=NB_CONTAINERS`
 
 Because of the following `docker-compose.yml` configuration, the initial stack will deploy 6 containers of ingestor microservice (`replicas` value). 
 If you update the ingestor during runtime, containers will be shutdowned and updated two by two (`parallelism` value), HAProxy will load-balance traffic on old version working containers and progressively redirect trafic on updated containers. In summary, you will not experience downtime of your ingestor microservice. 

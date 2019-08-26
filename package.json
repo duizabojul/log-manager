@@ -10,6 +10,7 @@
     "logs-generator:stop" : "curl http://127.0.0.1:3333/logs-generator/stop",
     "consolidator:start" : "curl http://127.0.0.1:3333/consolidator/start",
     "consolidator:stop" : "curl http://127.0.0.1:3333/consolidator/stop",
+    "consolidator:minioTask" : "curl http://127.0.0.1:3333/consolidator/consolidate-on-minio",
     "test:start" : "npm run logs-generator:start && npm run consolidator:start",
     "test:stop" : "npm run logs-generator:stop && npm run consolidator:stop"
   },

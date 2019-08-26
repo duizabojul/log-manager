@@ -1,12 +1,10 @@
 import * as fs from 'fs-extra';
 import * as uuid from 'uuid/v4';
 import * as lockfile from 'lockfile';
-
-const BASE_PATH = '/data'
+import { constants } from '.'
 
 class IngestorLogFile {
   
-  fileName:string
   path:string
   fileExists:boolean
   jsonOpened:boolean
@@ -15,23 +13,26 @@ class IngestorLogFile {
   pauseWrites:boolean
   writingPromises:Array<any>
   
-  constructor (fileName:any){
-    this.fileName = fileName || `${uuid()}.json`
-    this.path = `${BASE_PATH}/${this.fileName}`
+  constructor (filePath:any){
+    this.path = filePath || `${constants.BASE_PATH}/${uuid()}.json`
     this.fileExists = false
     this.jsonOpened = false
     this.jsonClosed = false
-    if(fileName){
+    if(filePath){
       this.checkFileStructure()
     }
     this.openingJsonPromise = null
     this.pauseWrites = false
     this.writingPromises = []
   }
+
+  getPath = () => {
+    return this.path
+  }
   
   lock () {
     try {
-      lockfile.lockSync(`${BASE_PATH}/${this.fileName}.lock`)
+      lockfile.lockSync(`${this.path}.lock`)
       return true
     } catch (error) {
       return false
@@ -40,7 +41,7 @@ class IngestorLogFile {
   
   unlock () {
     try {
-      lockfile.unlockSync(`${BASE_PATH}/${this.fileName}.lock`)
+      lockfile.unlockSync(`${this.path}.lock`)
       return true
     } catch (error) {
       return false
@@ -49,14 +50,12 @@ class IngestorLogFile {
   
   checkFileStructure () {
     this.fileExists = fs.existsSync(this.path)
-    if(this.fileExists){
-      const content = this.getContentAsString()
-      this.jsonOpened = content.length > 0 && content.charAt(0) === '['
-      this.jsonClosed = content.length > 0 && content.charAt(content.length -1) === ']'
-    }
+    const content = this.getFileContentAsString()
+    this.jsonOpened = content.length > 0 && content.charAt(0) === '['
+    this.jsonClosed = content.length > 0 && content.charAt(content.length -1) === ']'
   }
-  
-  getContentAsString () {
+
+  getFileContentAsString () {
     return this.fileExists ? fs.readFileSync(this.path, {encoding : 'utf8'}) : ''
   }
   
@@ -144,12 +143,12 @@ class IngestorLogFile {
     })
   }
   
-  static getUnusedFileOrCreate () {
-    const files = fs.readdirSync('/data').filter(fileName => fileName.match(".json$"))
+  static getUnusedFileOrCreate (fileToIgnore:any = null):IngestorLogFile {
+    const files = fs.readdirSync(constants.BASE_PATH).filter(fileName => fileName.match(".json$") && (!fileToIgnore || `${constants.BASE_PATH}/${fileName}` !== fileToIgnore.getPath()))
     let unusedFile = null
     for (let index = 0; index < files.length; index++) {
-      const fileName = files[index]
-      const file = new this(fileName)
+      const filePath= `${constants.BASE_PATH}/${files[index]}`
+      const file = new this(filePath)
       if(file.lock()){
         if(file.jsonClosed){
           file.removeFromFs()
